@@ -25,8 +25,19 @@ class Simple(BaseFormatter):
         self.cg_generator = cg_generator
 
     def generate(self):
-        output = self.cg_generator.output()
+        # Get the extended call graph that includes line numbers
+        extended_cg = self.cg_generator.cg.get_extended()
         output_cg = {}
-        for node in output:
-            output_cg[node] = list(output[node])
+        
+        # Process the extended call graph to include line numbers
+        for src_node, data in extended_cg.items():
+            output_cg[src_node] = []
+            for dst_info in data['dsts']:
+                # Include destination with line number
+                output_cg[src_node].append({
+                    "dst": dst_info["dst"],
+                    "lineno": dst_info["lineno"],
+                    "mod": dst_info["mod"]
+                })
+                
         return output_cg
